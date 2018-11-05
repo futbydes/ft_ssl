@@ -10,9 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "lem.h"
+#include "ft_ssl.h"
 
-t_lst				*ft_lst(int fd, t_lst *current)
+static t_lst		*ft_lst(int fd, t_lst *current)
 {
 	t_lst			*new;
 	t_lst			*head;
@@ -40,7 +40,7 @@ t_lst				*ft_lst(int fd, t_lst *current)
 	return (new);
 }
 
-char				*ft_realoc(char **line, char *buff)
+static char			*ft_realoc(char **line, char *buff)
 {
 	int				x;
 	char			*new;

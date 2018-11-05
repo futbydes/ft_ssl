@@ -15,6 +15,7 @@
 # define BUFF_SIZE 1000
 
 # include <stdlib.h>
+# include <fcntl.h>
 # include "libft/libft.h"
 # include "libft/ft_printf/ft_printf.h"
 
@@ -24,5 +25,23 @@ typedef struct		s_lst
 	int				ds;
 	struct s_lst	*next;
 }					t_lst;
+
+typedef struct 		s_flg
+{
+	char 			p;
+	char			q;
+	char			r;
+	char			s;
+	char			cmd;
+}					t_flags;
+
+int			ssl_command_parse(char **argv, char *line);
+int			ssl_command_toflags(int argc, char **argv);
+void		ssl_flags_parse(int argc, char **argv);
+char		*ssl_fd_read(int fd);
+char		*ssl_get_input(int x);
+void		ssl_alg(char *arr);
+int			get_next_line(const int fd, char **line);
+
 
 #endif

@@ -11,18 +11,20 @@
 /* ************************************************************************** */
 
 #include <stdio.h>
+#include "ft_ssl.h"
 #include "libft/libft.h"
+
+struct s_flg 	*flg;
 
 int			main(int argc, char **argv)
 {
-	int		funct;
-
+	flg = ft_memalloc(sizeof(struct s_flg));
 	if (argc == 1)
-		funct = ssl_get_input();
+		ssl_alg(ssl_get_input(0));
 	else
 	{
-		funct = ssl_command_parse(argv, 0);
-		ssl_flags_parse(argv, funct);
+		ssl_command_parse(argv, 0);
+		ssl_command_toflags(argc, argv);
 	}
 	return (0);
 }
@@ -35,57 +37,145 @@ int			ssl_command_parse(char **argv, char *line)
 	x = 0;
 	while (line && line[x] == ' ')
 		x++;
-	temp = (!line ? argv[2] : line + x);
-	//strcmp for line "md5 -r" ????
+	temp = (!line ? argv[1] : line + x);
 	if (!ft_strcmp(temp, "md5"))
-		return (1);
+		flg->cmd = 1;
 	else if (!ft_strcmp(temp, "sha256"))
-		return (2);
+		flg->cmd = 2;
 	else if (!ft_strcmp(temp, "sha512"))
-		return (3);
+		flg->cmd = 3;
 	else if (!ft_strcmp(temp, "q"))
-		return (4);
+		flg->cmd = 4;
 	else
-		return (0);
+		flg->cmd = 0;
+	return (0);
 }
 
-int			ssl_flags_parse(int argc, char **argv, int funct)
+int			ssl_command_toflags(int argc, char **argv)
 {
-	char	*line;
-
-	//line = ft_strchr(argv[3], '-');
-	if (funct != 0 && funct != 4 && argc == 2)
+	if (flg->cmd != 0 && flg->cmd != 4)
 	{
-		while (get_next_line(0, &line) > 0 && ft_strlen(line))
-			;
+		if (argc > 2)
+			ssl_flags_parse(argc, argv);
+		ssl_get_input(1);
+		return (0);
 	}
-	else if () 
-		;
-	else if (funct == 4)
+	else if (flg->cmd == 4)
 		return (1);
 	else
 	{
-		error_mgmnt();
+		//error_mgmnt();
 		return (2);
 	}
 }
 
-int			ssl_get_input(void)
+void		ssl_flags_parse(int argc, char **argv)
+{
+	int 	x;
+
+	x = 2;
+	while (x < argc)
+	{
+		if (!ft_strcmp(argv[x], "-p"))
+		{
+			flg->p = 1;
+			ssl_fd_read(1);
+		}
+		else if (!ft_strcmp(argv[x], "-q"))
+			flg->q = 1;
+		else if (!ft_strcmp(argv[x], "-r"))
+			flg->r = 1;
+		else if (!ft_strcmp(argv[x], "-s"))
+		{
+			flg->s = 1;
+			//ssl_alg(); // , argv[x + 1]
+		}
+		else
+		{
+			//flg->files = 1 ? 
+			while (x < argc)
+			{
+				ssl_alg(ssl_fd_read(open(argv[x], O_RDONLY)));
+				printf("%d\n", x);
+				x++;
+			}
+		}
+		x++;
+	}
+}
+
+char		*ssl_fd_read(int fd)
 {
 	char	*line;
-	int 	x;
+	char	*arr;
+	char	*temp;
 	int 	res;
+
+	if (fd < 0)
+	{
+		printf("%s\n", "EROOR");
+		return (0);
+	}
+	arr = 0;
+	res = get_next_line(fd, &line);
+	if (res > 0 && flg->cmd)
+		arr = ft_memalloc(sizeof(struct s_flg) + 1);
+	while (res > 0 && line && flg->cmd)
+	{
+		temp = ft_strjoin(arr, line);
+		if (arr)
+			free(arr);
+		arr = temp;
+		free(line);
+		res = get_next_line(fd, &line);
+		arr = ft_strjoin(temp, "\n"); //because gnl check line by \n
+		free(temp);
+		//printf("MY: %s\n", arr);
+	}
+	if (!res)
+		flg->cmd = 4;
+	if (!flg->cmd)
+		ssl_command_parse(0, line);
+	arr = (!arr ? line : arr);
+	return (arr);
+}
+
+char		*ssl_get_input(int x)
+{
+	char	*line;
+	int 	res;
+	char 	*ret;
 
 	line = 0;
 	res = 0;
-	while (!line && !res)
+	while (!line && !res && flg->cmd != 4)
 	{
-		ft_printf("ft_ssl> ");
-		if (get_next_line(1, &line) == -1)
+		if (x == 0)
+			ft_printf("ft_ssl> ");
+		line = ssl_fd_read(1);
+		if (!line || flg->cmd == 4)
 			res = 4;
 		else
-			res = ssl_command_parse(0, line);
+		{
+			ssl_command_parse(0, line);
+			if (flg->cmd == 0)
+			{
+				printf("%s\n", "INVALID command");
+				line = 0; //error *line is invalid command
+			}
+			else
+			{
+				ret = ssl_fd_read(1);
+			}
+		}
 		free(line);
 	}
-	return (res);
+	return (ret);
+}
+
+void		ssl_alg(char *arr)
+{
+	if (!arr)
+		return ;
+	printf("%s\n", arr);
 }
