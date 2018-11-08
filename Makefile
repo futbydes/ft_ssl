@@ -10,7 +10,7 @@
 #                                                                              #
 # **************************************************************************** #
 
-SRC = main.c get_next_line.c
+SRC = ssl_parse.c ssl_alg.c get_next_line.c
 OBJ = $(SRC:.c=.o)
 INCLUDES = ft_ssl.h
 NAME = ft_ssl

@@ -32,8 +32,11 @@ typedef struct 		s_flg
 	char			q;
 	char			r;
 	char			s;
+	char			files;
 	char			cmd;
 }					t_flags;
+
+#include <stdio.h>
 
 int			ssl_command_parse(char **argv, char *line);
 int			ssl_command_toflags(int argc, char **argv);
